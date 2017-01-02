@@ -7,14 +7,34 @@ use std::thread;
 use chrono::{DateTime, UTC};
 use futures::{Future, BoxFuture, Stream};
 
-struct WorkResult {
-    pub n: u64,
-    pub thread: thread::Thread,
-    pub start_time: DateTime<UTC>,
-    pub sum: u64,
+struct Fibonacci { curr: usize, next: usize, }
+
+// Implement `Iterator` for `Fibonacci`.
+impl Iterator for Fibonacci {
+    type Item = usize;
+
+    fn next(&mut self) -> Option<usize> {
+        let old = self.curr;
+        let new = self.curr + self.next;
+        self.curr = self.next;
+        self.next = new;
+        Some(old)
+    }
 }
 
-fn work(n: u64) -> BoxFuture<WorkResult, u64> {
+/// Returns nth Fibonacci sequence number
+fn fibonacci(n: usize) -> usize {
+    Fibonacci { curr: 0, next: 1 }.nth(n).unwrap()
+}
+
+struct WorkResult {
+    pub n: usize,
+    pub thread: thread::Thread,
+    pub start_time: DateTime<UTC>,
+    pub sum: usize,
+}
+
+fn work(n: usize) -> BoxFuture<WorkResult, usize> {
     let result = match n {
         // Fail on 1000 to create an or_else() case on the stream
         1000 => Err(n),
@@ -24,7 +44,7 @@ fn work(n: u64) -> BoxFuture<WorkResult, u64> {
                 n: n,
                 thread: thread::current(),
                 start_time: UTC::now(),
-                sum: (0..n).fold(0, |sum, x| sum + x)
+                sum: fibonacci(n)
             })
         }
     };
