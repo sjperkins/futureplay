@@ -4,4 +4,5 @@ version = "0.1.0"
 authors = ["Simon Perkins <simon.perkins@gmail.com>"]
 
 [dependencies]
-futures = "0.1.6"
+futures = { git = "https://github.com/alexcrichton/futures-rs" }
+futures-cpupool = { git = "https://github.com/alexcrichton/futures-rs" }
