@@ -1,3 +1,4 @@
+#![feature(conservative_impl_trait)]
 extern crate chrono;
 extern crate futures;
 extern crate futures_cpupool;
@@ -5,7 +6,7 @@ extern crate futures_cpupool;
 use std::thread;
 
 use chrono::{DateTime, UTC};
-use futures::{Future, BoxFuture, Stream};
+use futures::{Future, Stream};
 
 struct Fibonacci { curr: usize, next: usize, }
 
@@ -34,7 +35,7 @@ struct WorkResult {
     pub sum: usize,
 }
 
-fn work(n: usize) -> BoxFuture<WorkResult, usize> {
+fn work(n: usize) -> impl Future<Item=WorkResult, Error=usize> {
     let result = match n {
         // Fail on 1000 to create an or_else() case on the stream
         1000 => Err(n),
@@ -50,7 +51,7 @@ fn work(n: usize) -> BoxFuture<WorkResult, usize> {
     };
 
     // Returned a boxed future of the result
-    futures::done(result).boxed()
+    futures::done(result)
 }
 
 fn main() {
