@@ -6,5 +6,5 @@ authors = ["Simon Perkins <simon.perkins@gmail.com>"]
 [dependencies]
 num = "0.1"
 chrono = "0.2"
-futures = { git = "https://github.com/alexcrichton/futures-rs" }
-futures-cpupool = { git = "https://github.com/alexcrichton/futures-rs" }
+futures = { git = "https://github.com/alexcrichton/futures-rs", branch = "master" }
+futures-cpupool = { git = "https://github.com/alexcrichton/futures-rs", branch = "master" }
