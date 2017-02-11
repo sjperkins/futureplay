@@ -2,37 +2,42 @@
 extern crate chrono;
 extern crate futures;
 extern crate futures_cpupool;
-
+extern crate num;
 use std::thread;
 
 use chrono::{DateTime, UTC};
 use futures::{Future, Stream};
+use num::bigint::BigUint;
+use num::{Zero, One};
 
-struct Fibonacci { curr: usize, next: usize, }
+struct Fibonacci { curr: BigUint, next: BigUint, }
 
 // Implement `Iterator` for `Fibonacci`.
 impl Iterator for Fibonacci {
-    type Item = usize;
+    type Item = BigUint;
 
-    fn next(&mut self) -> Option<usize> {
-        let old = self.curr;
-        let new = self.curr + self.next;
-        self.curr = self.next;
+    fn next(&mut self) -> Option<BigUint> {
+        let old = self.curr.clone();
+        let new = &self.curr + &self.next;
+        self.curr = self.next.clone();
         self.next = new;
         Some(old)
     }
 }
 
 /// Returns nth Fibonacci sequence number
-fn fibonacci(n: usize) -> usize {
-    Fibonacci { curr: 0, next: 1 }.nth(n).unwrap()
+fn fibonacci(n: usize) -> BigUint {
+    Fibonacci {
+        curr: BigUint::zero(),
+        next: BigUint::one()
+    }.nth(n).unwrap()
 }
 
 struct WorkResult {
     pub n: usize,
     pub thread: thread::Thread,
     pub start_time: DateTime<UTC>,
-    pub sum: usize,
+    pub sum: BigUint,
 }
 
 fn work(n: usize) -> impl Future<Item=WorkResult, Error=usize> {
@@ -63,7 +68,7 @@ fn main() {
         .create();
 
     // Arguments for our work function
-    let args = vec!(1000000, 100000, 10000, 1000);
+    let args = vec!(11000, 12000, 10000, 1000);
 
     let iterate = args.into_iter()
         // pool.spawn_fn creates a lazy future for the cpu pool to execute
