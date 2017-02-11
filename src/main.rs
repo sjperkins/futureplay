@@ -3,6 +3,7 @@ extern crate chrono;
 extern crate futures;
 extern crate futures_cpupool;
 extern crate num;
+
 use std::thread;
 
 use chrono::{DateTime, UTC};
@@ -77,11 +78,14 @@ fn main() {
 
     // Iterate over the cpu futures, printing results
     let stream = futures::stream::futures_unordered(iterate)
-        // Handle the error case in work
+        // Handle the error case in work (Fail on n=1000)
+        // by spawning work (and getting a future) for n=1001
         .or_else(|e| pool.spawn_fn(move || work(e+1)))
         // Handle result case of work
         .for_each(|r| {
             let finish_time = UTC::now();
+            let duration = finish_time - r.start_time;
+            let duration_us = duration.num_microseconds().unwrap();
             println!("Argument     {}\n\
                       Result       {}\n\
                       Ran on thead {}\n\
@@ -93,7 +97,7 @@ fn main() {
                         r.thread.name().unwrap(),
                         r.start_time.format("%H:%M:%S%.6f"),
                         finish_time.format("%H:%M:%S%.6f"),
-                        finish_time - r.start_time);
+                        format!("{} us", duration_us));
             Ok(())
         });
 
