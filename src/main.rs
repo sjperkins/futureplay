@@ -13,6 +13,13 @@ use num::{Zero, One};
 
 struct Fibonacci { curr: BigUint, next: BigUint, }
 
+impl Fibonacci {
+    // Construct a new Fibonacci struct
+    pub fn new() -> Fibonacci {
+        Fibonacci{ curr: BigUint::zero(), next: BigUint::one() }
+    }
+}
+
 // Implement `Iterator` for `Fibonacci`.
 impl Iterator for Fibonacci {
     type Item = BigUint;
@@ -28,10 +35,7 @@ impl Iterator for Fibonacci {
 
 /// Returns nth Fibonacci sequence number
 fn fibonacci(n: usize) -> BigUint {
-    Fibonacci {
-        curr: BigUint::zero(),
-        next: BigUint::one()
-    }.nth(n).unwrap()
+    Fibonacci::new().nth(n).unwrap()
 }
 
 struct WorkResult {
@@ -78,8 +82,8 @@ fn main() {
 
     // Iterate over the cpu futures, printing results
     let stream = futures::stream::futures_unordered(iterate)
-        // Handle the error case in work (Fail on n=1000)
-        // by spawning work (and getting a future) for n=1001
+        // Recover from failure (on n=1000)
+        // by spawning work for n=1001
         .or_else(|e| pool.spawn_fn(move || work(e+1)))
         // Handle result case of work
         .for_each(|r| {
