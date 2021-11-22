@@ -2,6 +2,7 @@
 name = "futureplay"
 version = "0.1.0"
 authors = ["Simon Perkins <simon.perkins@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 num = "0.1"
